@@ -1,15 +1,20 @@
 import React, { useState } from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
+import {
+  LayoutGrid, BookOpen, ClipboardList, TrendingUp,
+  GraduationCap, Users, HeartPulse, LogOut,
+  AlertTriangle, Menu, User,
+} from 'lucide-react';
 import { useApp } from '../context/AppContext';
 
 const NAV = [
-  { to: '/',         icon: '⊞', rw: 'Ahabanza',         en: 'Home' },
-  { to: '/journal',  icon: '✏', rw: 'Ibitabo byanjye',  en: 'My Journal' },
-  { to: '/tracker',  icon: '◎', rw: 'Gukurikirana',     en: 'Daily Tracker' },
-  { to: '/progress', icon: '↗', rw: 'Iterambere',       en: 'My Progress' },
-  { to: '/learn',    icon: '📚', rw: 'Kwiga',            en: 'Learn' },
-  { to: '/peers',    icon: '◉', rw: 'Inzira yacu',      en: 'Our Circle' },
-  { to: '/chw',      icon: '♥', rw: 'Umujyanama wanjye',en: 'My CHW' },
+  { to: '/',         Icon: LayoutGrid,    rw: 'Ahabanza',          en: 'Home' },
+  { to: '/journal',  Icon: BookOpen,      rw: 'Ibitabo byanjye',   en: 'My Journal' },
+  { to: '/tracker',  Icon: ClipboardList, rw: 'Gukurikirana',      en: 'Daily Tracker' },
+  { to: '/progress', Icon: TrendingUp,    rw: 'Iterambere',        en: 'My Progress' },
+  { to: '/learn',    Icon: GraduationCap, rw: 'Kwiga',             en: 'Learn' },
+  { to: '/peers',    Icon: Users,         rw: 'Inzira yacu',       en: 'Our Circle' },
+  { to: '/chw',      Icon: HeartPulse,   rw: 'Umujyanama wanjye', en: 'My CHW' },
 ];
 
 const PAGE_TITLES: Record<string, { rw: string; en: string }> = {
@@ -27,7 +32,7 @@ function SOSAlert({ onClose }: { onClose: () => void }) {
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal" style={{ maxWidth: 440 }} onClick={e => e.stopPropagation()}>
         <div className="modal-header" style={{ borderColor: '#FEE2E2' }}>
-          <div style={{ fontSize: 32 }}>🆘</div>
+          <AlertTriangle size={32} color="#DC2626" strokeWidth={1.8} />
           <div>
             <div style={{ fontWeight: 700, fontSize: 17 }}>Ndakeneye ubufasha</div>
             <div style={{ fontSize: 13, color: 'var(--gray-500)' }}>I need help</div>
@@ -59,8 +64,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const { lang, setLang, t, nickname, logout } = useApp();
   const [sos, setSos] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const path = window.location.pathname;
-  const pageTitle = PAGE_TITLES[path]?.[lang] ?? 'Ineza';
+  const { pathname } = useLocation();
+  const pageTitle = PAGE_TITLES[pathname]?.[lang] ?? 'Ineza';
 
   const closeSidebar = () => setMobileOpen(false);
 
@@ -90,7 +95,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               className={({ isActive }) => `nav-item${isActive ? ' active' : ''}`}
               onClick={closeSidebar}
             >
-              <span style={{ fontSize: 16, width: 18, textAlign: 'center' }}>{item.icon}</span>
+              <item.Icon size={17} strokeWidth={1.8} />
               {lang === 'rw' ? item.rw : item.en}
             </NavLink>
           ))}
@@ -117,7 +122,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             onMouseOver={e => { (e.currentTarget as HTMLButtonElement).style.background = '#FEF2F2'; (e.currentTarget as HTMLButtonElement).style.borderColor = '#FCA5A5'; (e.currentTarget as HTMLButtonElement).style.color = '#DC2626'; }}
             onMouseOut={e => { (e.currentTarget as HTMLButtonElement).style.background = 'var(--white)'; (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--border)'; (e.currentTarget as HTMLButtonElement).style.color = 'var(--gray-500)'; }}
           >
-            <span>⎋</span>
+            <LogOut size={15} strokeWidth={2} />
             {lang === 'rw' ? 'Sohoka' : 'Log out'}
           </button>
         </div>
@@ -139,8 +144,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
           <div className="topbar-right">
             {nickname && (
-              <span className="topbar-nickname">
-                👋 {nickname}
+              <span className="topbar-nickname" style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                <User size={14} strokeWidth={2} /> {nickname}
               </span>
             )}
             <div className="topbar-lang">
@@ -154,7 +159,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               >🇬🇧 EN</button>
             </div>
             <button className="sos-btn" onClick={() => setSos(true)}>
-              🆘 <span className="sos-text">{t('sos')}</span>
+              <AlertTriangle size={14} strokeWidth={2.5} />
+              <span className="sos-text">{t('sos')}</span>
             </button>
           </div>
         </header>

@@ -71,7 +71,7 @@ export default function Onboarding() {
                 {lang === 'rw' ? 'Aho uri wowe' : 'A little about you'}
               </h2>
               <p style={{ color: 'var(--gray-500)', fontSize: 14, marginBottom: 24 }}>
-                {lang === 'rw' ? 'Nta mazina nyayo — ibanga ryawe rirabitswe.' : 'No real name needed — your privacy is protected.'}
+                {lang === 'rw' ? 'Nta mazina nyayo. Ibanga ryawe rirabitswe.' : 'No real name needed. Your privacy is protected.'}
               </p>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>

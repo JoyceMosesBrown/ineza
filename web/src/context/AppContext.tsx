@@ -13,6 +13,7 @@ export interface DayEntry {
   anxiety: 'yes' | 'sometimes' | 'no' | null;
   social: boolean | null;
   journalText: string;
+  feeling: string;
   aiResponse: string;
 }
 
@@ -51,12 +52,12 @@ const T: Record<Lang, Record<string, string>> = {
     settings: 'Igenamiterere', language: 'Ururimi',
     quote: 'Ijambo ry\'uyu munsi',
     learnTitle: 'Kwiga', learnSub: 'Amakuru yoroheje akubafasha',
-    peersTitle: 'Inzira Yacu', circleNote: 'Aha nta mazina nyayo — ibanga ryawe rirabitswe.',
+    peersTitle: 'Inzira Yacu', circleNote: 'Aha nta mazina nyayo. Ibanga ryawe rirabitswe.',
     share: 'Andika ubutumwa...', post: 'Tuma',
     chwTitle: 'Umujyanama wanjye', call: 'Hamagara', message: 'Ubutumwa', visit: 'Saba inzu',
     nickname: 'Izina ryo mu rugo', district: 'Akarere', pin: 'PIN (imibare 4)',
     register: 'Tangira', welcome: 'Murakaza neza ku Ineza',
-    tagline: 'Aho ubuzima bwawe bugaragarira — Kinyarwanda cyangwa Icyongereza',
+    tagline: 'Aho ubuzima bwawe bugaragarira, mu Kinyarwanda cyangwa Icyongereza',
   },
   en: {
     home: 'Home', journal: 'My Journal', tracker: 'Daily Tracker',
@@ -74,12 +75,12 @@ const T: Record<Lang, Record<string, string>> = {
     settings: 'Settings', language: 'Language',
     quote: "Today's thought",
     learnTitle: 'Learn', learnSub: 'Simple knowledge to support your wellbeing',
-    peersTitle: 'Our Circle', circleNote: 'Anonymous — no real names. A safe, judgment-free space.',
+    peersTitle: 'Our Circle', circleNote: 'Anonymous, no real names. A safe, judgment-free space.',
     share: 'Share with your circle...', post: 'Post',
     chwTitle: 'My CHW', call: 'Call', message: 'Message', visit: 'Request visit',
     nickname: 'Nickname', district: 'District', pin: 'PIN (4 digits)',
     register: 'Get started', welcome: 'Welcome to Ineza',
-    tagline: 'Your safe space for wellbeing — in Kinyarwanda or English',
+    tagline: 'Your safe space for wellbeing, in Kinyarwanda or English',
   },
 };
 
@@ -87,7 +88,7 @@ const Ctx = createContext<Ctx | null>(null);
 
 const defaultEntry = (date: string): DayEntry => ({
   date, mood: null, sleep: 0, ate: null, cried: null,
-  babyBond: null, anxiety: null, social: null, journalText: '', aiResponse: '',
+  babyBond: null, anxiety: null, social: null, journalText: '', feeling: '', aiResponse: '',
 });
 
 export function AppProvider({ children }: { children: React.ReactNode }) {

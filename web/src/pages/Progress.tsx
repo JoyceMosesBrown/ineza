@@ -19,9 +19,9 @@ export default function Progress() {
   const moods = days.map(d => get(d)?.mood ?? 0);
   const sleeps = days.map(d => get(d)?.sleep ?? 0);
   const avgMood = moods.filter(Boolean).length
-    ? (moods.filter(Boolean).reduce((a,b)=>a+b,0) / moods.filter(Boolean).length).toFixed(1) : '—';
+    ? (moods.filter(Boolean).reduce((a: number, b: number) => a + b, 0) / moods.filter(Boolean).length).toFixed(1) : '—';
   const avgSleep = sleeps.filter(Boolean).length
-    ? (sleeps.filter(Boolean).reduce((a,b)=>a+b,0) / sleeps.filter(Boolean).length).toFixed(1) : '—';
+    ? (sleeps.filter(Boolean).reduce((a: number, b: number) => a + b, 0) / sleeps.filter(Boolean).length).toFixed(1) : '—';
 
   const dayLabel = (iso: string) => new Date(iso).toLocaleDateString(lang === 'rw' ? 'fr-RW' : 'en-GB', { weekday: 'short' }).slice(0,2);
 
@@ -38,7 +38,7 @@ export default function Progress() {
         </div>
         <div className="streak-msg">
           {streak >= 7
-            ? (lang === 'rw' ? `Wakoze iminsi ${streak} yinjiye — intwari!` : `${streak} days in a row — that takes real strength!`)
+            ? (lang === 'rw' ? `Wakoze iminsi ${streak} yinjiye. Intwari!` : `${streak} days in a row. That takes real strength!`)
             : (lang === 'rw' ? 'Buri munsi winjiye ni intsinzi nini.' : 'Every day you show up is a victory.')}
         </div>
       </div>

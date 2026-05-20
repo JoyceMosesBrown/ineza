@@ -1,130 +1,92 @@
 import React, { useState } from 'react';
+import { Phone, Home, Calendar, MapPin, Stethoscope } from 'lucide-react';
 import { useApp } from '../context/AppContext';
-
-const MSGS_RW = [
-  { from: 'chw', text: 'Amakuru, Mama! Uzagiye neza uyu munsi?', time: '9:00' },
-  { from: 'me', text: 'Neza gato. Nashakaga kukubwira.', time: '9:05' },
-  { from: 'chw', text: 'Ndikuriho. Tuvugane.', time: '9:06' },
-];
-const MSGS_EN = [
-  { from: 'chw', text: 'Hello Mama! How are you doing today?', time: '9:00' },
-  { from: 'me', text: 'A little better. I wanted to tell you something.', time: '9:05' },
-  { from: 'chw', text: "I'm here. Let's talk.", time: '9:06' },
-];
+import HospitalMap from '../components/HospitalMap';
 
 export default function CHW() {
   const { lang, district, t } = useApp();
-  const [tab, setTab] = useState<'about'|'messages'>('about');
-  const msgs = lang === 'rw' ? MSGS_RW : MSGS_EN;
-
-  const action = (label: string) => alert(label);
+  const [toast, setToast] = useState('');
+  const showToast = (msg: string) => { setToast(msg); setTimeout(() => setToast(''), 3000); };
 
   return (
     <div className="page" style={{ maxWidth: 680 }}>
-      <h1 className="section-title">{t('chwTitle')}</h1>
-      <p className="section-sub">{lang === 'rw' ? 'Umujyanama wawe w\'ubuzima — hafi nawe igihe cyose' : 'Your community health worker — always here for you'}</p>
+      {toast && (
+        <div style={{
+          position: 'fixed', bottom: 24, left: '50%', transform: 'translateX(-50%)',
+          background: 'var(--green-700)', color: 'var(--white)', borderRadius: 10,
+          padding: '12px 24px', fontSize: 14, fontWeight: 600, zIndex: 999,
+          boxShadow: '0 4px 20px rgba(0,0,0,.2)',
+        }}>{toast}</div>
+      )}
 
-      {/* Profile card */}
-      <div className="card" style={{ marginBottom: 16, overflow: 'hidden' }}>
-        <div style={{ background: 'var(--green-700)', padding: '24px', display: 'flex', alignItems: 'center', gap: 20 }}>
-          <div className="chw-avatar" style={{ background: 'rgba(255,255,255,.2)' }}>👩‍⚕️</div>
-          <div>
+      <h1 className="section-title">{t('chwTitle')}</h1>
+      <p className="section-sub">
+        {lang === 'rw' ? 'Umujyanama wawe w\'ubuzima ni hafi nawe igihe cyose' : 'Your community health worker is always here for you'}
+      </p>
+
+      {/* CHW profile card */}
+      <div className="card" style={{ marginBottom: 20, overflow: 'hidden' }}>
+        <div style={{ background: 'var(--green-700)', padding: '20px 24px', display: 'flex', alignItems: 'center', gap: 18 }}>
+          <div className="chw-avatar" style={{ background: 'rgba(255,255,255,.15)', color: 'var(--white)' }}>
+            <Stethoscope size={26} strokeWidth={1.6} />
+          </div>
+          <div style={{ flex: 1 }}>
             <div className="chw-name" style={{ color: 'var(--white)' }}>Chantal Uwamahoro</div>
             <div className="chw-role" style={{ color: 'rgba(255,255,255,.75)' }}>
               {lang === 'rw' ? 'Umujyanama w\'ubuzima' : 'Community Health Worker'} · {district || 'Gasabo'}
-            </div>
-            <div className="chw-actions">
-              <button className="btn btn-sm" style={{ background: 'rgba(255,255,255,.2)', color: 'var(--white)', border: 'none' }} onClick={() => action('Calling CHW...')}>
-                📞 {t('call')}
-              </button>
-              <button className="btn btn-sm" style={{ background: 'rgba(255,255,255,.2)', color: 'var(--white)', border: 'none' }} onClick={() => setTab('messages')}>
-                💬 {t('message')}
-              </button>
-              <button className="btn btn-sm" style={{ background: 'rgba(255,255,255,.2)', color: 'var(--white)', border: 'none' }} onClick={() => action(lang==='rw' ? 'Ubusabe bwatumwe!' : 'Visit request sent!')}>
-                🏠 {t('visit')}
-              </button>
             </div>
           </div>
         </div>
 
         {/* Next visit */}
-        <div style={{ padding: '16px 24px', background: 'var(--green-50)', display: 'flex', alignItems: 'center', gap: 12, borderBottom: '1px solid var(--border)' }}>
-          <span style={{ fontSize: 22 }}>📅</span>
+        <div style={{ padding: '14px 24px', background: 'var(--green-50)', display: 'flex', alignItems: 'center', gap: 12, borderBottom: '1px solid var(--border)' }}>
+          <Calendar size={18} strokeWidth={1.8} color="var(--green-600)" />
           <div>
-            <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--gray-500)' }}>{lang==='rw' ? 'INSHURO IKURIKIRA' : 'NEXT VISIT'}</div>
-            <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--gray-900)', marginTop: 2 }}>
-              {lang==='rw' ? 'Kuwa Gatanu, 22 Gicurasi' : 'Thursday, 22 May'}
+            <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--gray-500)', textTransform: 'uppercase', letterSpacing: '.5px' }}>
+              {lang === 'rw' ? 'Inshuro ikurikira' : 'Next visit'}
+            </div>
+            <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--gray-900)', marginTop: 1 }}>
+              {lang === 'rw' ? 'Kuwa Gatanu, 22 Gicurasi' : 'Thursday, 22 May'}
             </div>
           </div>
         </div>
 
-        {/* Tabs */}
-        <div style={{ display: 'flex', borderBottom: '1px solid var(--border)' }}>
-          {(['about','messages'] as const).map(t2 => (
-            <button key={t2}
-              onClick={() => setTab(t2)}
-              style={{
-                flex: 1, padding: '14px', fontWeight: 600, fontSize: 14, border: 'none', cursor: 'pointer',
-                background: tab===t2 ? 'var(--white)' : 'var(--gray-100)',
-                color: tab===t2 ? 'var(--green-700)' : 'var(--gray-500)',
-                borderBottom: tab===t2 ? '2px solid var(--green-700)' : '2px solid transparent',
-                transition: 'all .15s',
-              }}>
-              {t2==='about' ? (lang==='rw' ? 'Amakuru' : 'About') : (lang==='rw' ? 'Ibiganiro' : 'Messages')}
-            </button>
-          ))}
+        {/* Quick actions */}
+        <div style={{ padding: '16px 24px', display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+          <a href="tel:+250788000000"
+            style={{
+              display: 'flex', alignItems: 'center', gap: 7, padding: '9px 18px',
+              borderRadius: 20, background: 'var(--green-700)', color: 'var(--white)',
+              fontSize: 13, fontWeight: 700, textDecoration: 'none', border: 'none',
+            }}>
+            <Phone size={14} strokeWidth={2} /> {t('call')}
+          </a>
+          <button
+            onClick={() => showToast(lang === 'rw' ? 'Ubusabe bwatumwe. Chantal azakugana vuba.' : 'Visit request sent. Chantal will contact you soon.')}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 7, padding: '9px 18px',
+              borderRadius: 20, background: 'var(--white)', color: 'var(--green-700)',
+              fontSize: 13, fontWeight: 700, border: '1.5px solid var(--green-300)', cursor: 'pointer',
+            }}>
+            <Home size={14} strokeWidth={2} /> {t('visit')}
+          </button>
         </div>
+      </div>
 
-        <div style={{ padding: 24 }}>
-          {tab === 'about' ? (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-              {[
-                { icon: '📍', text: district || 'Gasabo' },
-                { icon: '📞', text: '+250 788 000 000' },
-                { icon: '⭐', text: lang==='rw' ? 'Imyaka 5 y\'uburambe' : '5 years experience' },
-              ].map((r,i) => (
-                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                  <span style={{ fontSize: 18, width: 28 }}>{r.icon}</span>
-                  <span style={{ fontSize: 14, color: 'var(--gray-700)' }}>{r.text}</span>
-                </div>
-              ))}
-              <div style={{ marginTop: 8 }}>
-                <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--gray-500)', marginBottom: 10 }}>
-                  {lang==='rw' ? 'AHO AKUGEZA' : 'HOW YOUR CHW HELPS'}
-                </div>
-                {[
-                  lang==='rw' ? 'Inshuro buri kwezi azakugana inzu' : 'Monthly home visits',
-                  lang==='rw' ? 'Akurikirana ubuzima bwawe' : 'Tracks your health trends',
-                  lang==='rw' ? 'Agufasha kubona inkunga' : 'Connects you to health services',
-                  lang==='rw' ? 'Atumanahana nawe igihe cyose' : 'Always available to message',
-                ].map((b,i) => (
-                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
-                    <div style={{ width: 6, height: 6, borderRadius: 3, background: 'var(--green-500)', flexShrink: 0 }} />
-                    <span style={{ fontSize: 14, color: 'var(--gray-700)' }}>{b}</span>
-                  </div>
-                ))}
-              </div>
+      {/* Hospitals near you */}
+      <div className="card card-pad">
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 18 }}>
+          <MapPin size={18} strokeWidth={1.8} color="var(--green-600)" />
+          <div>
+            <div style={{ fontWeight: 700, fontSize: 15, color: 'var(--gray-900)' }}>
+              {lang === 'rw' ? 'Ibitaro biri hafi nawe' : 'Hospitals Near You'}
             </div>
-          ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-              {msgs.map((m,i) => (
-                <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: m.from==='me' ? 'flex-end' : 'flex-start', gap: 3 }}>
-                  <div style={{ fontSize: 11, color: 'var(--gray-400)', fontWeight: 600 }}>
-                    {m.from==='chw' ? 'Chantal' : (lang==='rw' ? 'Wowe' : 'You')} · {m.time}
-                  </div>
-                  <div style={{
-                    maxWidth: '75%', padding: '10px 16px', borderRadius: m.from==='me' ? '12px 12px 0 12px' : '12px 12px 12px 0',
-                    background: m.from==='me' ? 'var(--green-700)' : 'var(--gray-100)',
-                    color: m.from==='me' ? 'var(--white)' : 'var(--gray-900)',
-                    fontSize: 14, lineHeight: 1.55,
-                  }}>
-                    {m.text}
-                  </div>
-                </div>
-              ))}
+            <div style={{ fontSize: 13, color: 'var(--gray-500)', marginTop: 1 }}>
+              {lang === 'rw' ? 'Hitamo akarere kawe ubone ibitaro biri hafi' : 'Select your district to see nearby health facilities'}
             </div>
-          )}
+          </div>
         </div>
+        <HospitalMap district={district || 'Gasabo'} lang={lang} />
       </div>
     </div>
   );

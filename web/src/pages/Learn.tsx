@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { Volume2, Pause, Clock } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { ARTICLES } from '../data/content';
+import Icon from '../components/Icon';
 
 function useSpeech() {
   const [speaking, setSpeaking] = useState(false);
@@ -11,24 +13,33 @@ function useSpeech() {
     window.speechSynthesis.cancel();
     const utt = new SpeechSynthesisUtterance(text);
 
-    // Pick best available voice for the language
-    const voices = window.speechSynthesis.getVoices();
-    const preferred =
-      voices.find(v => v.lang.startsWith(lang === 'rw' ? 'fr' : 'en') && v.localService) ||
-      voices.find(v => v.lang.startsWith(lang === 'rw' ? 'fr' : 'en')) ||
-      voices[0];
-    if (preferred) utt.voice = preferred;
+    const langPrefix = lang === 'rw' ? 'fr' : 'en';
+    const femaleNames = ['samantha', 'victoria', 'karen', 'zira', 'hazel', 'google uk english female', 'google us english female', 'aria', 'jenny', 'moira', 'tessa', 'fiona'];
 
-    utt.lang = lang === 'rw' ? 'fr-FR' : 'en-US'; // fr fallback — closest to Kinyarwanda cadence
-    utt.rate = 0.88;
-    utt.pitch = 1;
+    const loadAndSpeak = () => {
+      const voices = window.speechSynthesis.getVoices();
+      const female =
+        voices.find(v => v.lang.startsWith(langPrefix) && femaleNames.some(n => v.name.toLowerCase().includes(n))) ||
+        voices.find(v => v.lang.startsWith(langPrefix) && v.name.toLowerCase().includes('female')) ||
+        voices.find(v => v.lang.startsWith(langPrefix) && v.localService) ||
+        voices.find(v => v.lang.startsWith(langPrefix)) ||
+        voices[0];
+      if (female) utt.voice = female;
+      utt.lang = lang === 'rw' ? 'fr-FR' : 'en-US';
+      utt.rate = 0.86;
+      utt.pitch = 1.05;
+      utt.onstart = () => { setSpeaking(true); setCurrentId(id); };
+      utt.onend = () => { setSpeaking(false); setCurrentId(null); };
+      utt.onerror = () => { setSpeaking(false); setCurrentId(null); };
+      uttRef.current = utt;
+      window.speechSynthesis.speak(utt);
+    };
 
-    utt.onstart = () => { setSpeaking(true); setCurrentId(id); };
-    utt.onend = () => { setSpeaking(false); setCurrentId(null); };
-    utt.onerror = () => { setSpeaking(false); setCurrentId(null); };
-
-    uttRef.current = utt;
-    window.speechSynthesis.speak(utt);
+    if (window.speechSynthesis.getVoices().length) {
+      loadAndSpeak();
+    } else {
+      window.speechSynthesis.onvoiceschanged = () => { loadAndSpeak(); window.speechSynthesis.onvoiceschanged = null; };
+    }
   };
 
   const stop = () => {
@@ -64,8 +75,8 @@ export default function Learn() {
       <h1 className="section-title">{lang === 'rw' ? 'Kwiga' : 'Learn'}</h1>
       <p className="section-sub">
         {lang === 'rw'
-          ? 'Amakuru yoroheje akubafasha gusobanukirwa ubuzima bwawe — iminota 2 buri nyandiko'
-          : 'Simple knowledge to support your wellbeing — 2 minutes per article'}
+          ? 'Amakuru yoroheje akubafasha gusobanukirwa ubuzima bwawe. Iminota 2 buri nyandiko'
+          : 'Simple knowledge to support your wellbeing. 2 minutes per article'}
       </p>
 
       {/* Listening hint banner */}
@@ -73,7 +84,7 @@ export default function Learn() {
         display: 'flex', alignItems: 'center', gap: 10, background: 'var(--green-50)',
         border: '1px solid var(--green-100)', borderRadius: 10, padding: '12px 16px', marginBottom: 20,
       }}>
-        <span style={{ fontSize: 20 }}>🔊</span>
+        <Volume2 size={18} color="var(--green-700)" strokeWidth={1.8} />
         <span style={{ fontSize: 13, color: 'var(--green-700)' }}>
           {lang === 'rw'
             ? 'Ntabwo ushobora gusoma? Kanda "Wumva" kugira ngo nyandiko isome ubwayo.'
@@ -93,7 +104,9 @@ export default function Learn() {
               style={{ borderBottom: i < ARTICLES.length - 1 ? '1px solid var(--border)' : 'none' }}
               onClick={() => setOpen(a.id)}
             >
-              <div className="article-icon" style={{ background: a.color }}>{a.icon}</div>
+              <div className="article-icon" style={{ background: a.color, color: 'var(--green-700)' }}>
+                <Icon name={a.icon} size={22} color="var(--green-700)" />
+              </div>
 
               <div className="article-body">
                 <div className="article-title">{title}</div>
@@ -101,7 +114,9 @@ export default function Learn() {
                   {lang === 'rw' ? a.summaryRw : a.summaryEn}
                 </div>
                 <div className="article-meta" style={{ gap: 8 }}>
-                  <span className="badge badge-green">⏱ 2 min</span>
+                  <span className="badge badge-green" style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <Clock size={11} strokeWidth={2} /> 2 min
+                  </span>
 
                   {/* Listen button */}
                   <button
@@ -109,7 +124,9 @@ export default function Learn() {
                     style={{ cursor: 'pointer', border: 'none', display: 'flex', alignItems: 'center', gap: 4 }}
                     onClick={e => handleListen(e, a.id, `${title}. ${body}`)}
                   >
-                    {isPlaying ? '⏸ ' : '🔊 '}
+                    {isPlaying
+                      ? <Pause size={11} strokeWidth={2} />
+                      : <Volume2 size={11} strokeWidth={2} />}
                     {isPlaying
                       ? (lang === 'rw' ? 'Hagarika' : 'Stop')
                       : (lang === 'rw' ? 'Wumva' : 'Listen')}
@@ -130,9 +147,9 @@ export default function Learn() {
             <div className="modal-header">
               <div style={{
                 width: 48, height: 48, borderRadius: 12, background: article.color,
-                display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, flexShrink: 0,
+                display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
               }}>
-                {article.icon}
+                <Icon name={article.icon} size={24} color="var(--green-700)" />
               </div>
               <div style={{ flex: 1 }}>
                 <div style={{ fontWeight: 700, fontSize: 16 }}>
@@ -156,7 +173,9 @@ export default function Learn() {
                   animation: speaking && currentId === article.id ? 'pulse 1.2s infinite' : 'none',
                 }}
               >
-                {speaking && currentId === article.id ? '⏸' : '🔊'}
+                {speaking && currentId === article.id
+                  ? <Pause size={14} strokeWidth={2} />
+                  : <Volume2 size={14} strokeWidth={2} />}
                 {speaking && currentId === article.id
                   ? (lang === 'rw' ? 'Hagarika' : 'Stop')
                   : (lang === 'rw' ? 'Wumva' : 'Listen')}
