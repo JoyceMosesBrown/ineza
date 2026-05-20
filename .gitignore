@@ -16,6 +16,8 @@ backend/.env
 
 # Claude AI local settings
 .claude/
+CLAUDE.md
+AGENTS.md
 
 # Logs
 *.log
